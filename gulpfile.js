@@ -3,6 +3,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
+var browserSync = require('browser-sync').create();
 
 var config = {
 	path: {
@@ -29,7 +30,19 @@ gulp.task('scss', function() {
 		// cascade: false
 }))
 	.pipe(sourcemaps.write())
-	.pipe(gulp.dest(config.output.path));
+	.pipe(gulp.dest(config.output.path))
+	.pipe(browserSync.stream());
 });
 
-gulp.task('default', ['scss']);
+gulp.task('serve', function() {
+	browserSync.init({
+		server: {
+			baseDir: config.output.path
+		}
+	});
+	gulp.watch(config.path.scss, ['scss']);
+	gulp.watch(config.path.html).on('change', browserSync.reload);
+});
+
+
+gulp.task('default', ['scss', 'serve']);
